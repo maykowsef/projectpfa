@@ -67,6 +67,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = 'Erreur lors du changement de mot de passe: ' . $e->getMessage();
             }
         }
+    } elseif ($action === 'request_deletion') {
+        $reason = sanitizeInput($_POST['reason'] ?? '');
+        
+        try {
+            // Check if there's already a pending request
+            $stmt = $pdo->prepare("SELECT id FROM deletion_requests WHERE user_id = ? AND status = 'pending'");
+            $stmt->execute([$userId]);
+            $existing = $stmt->fetch();
+            
+            if ($existing) {
+                $error = 'Vous avez déjà une demande de suppression en cours.';
+            } else {
+                $stmt = $pdo->prepare("INSERT INTO deletion_requests (user_id, reason) VALUES (?, ?)");
+                $stmt->execute([$userId, $reason]);
+                $success = 'Demande de suppression envoyée. L\'administrateur examinera votre demande.';
+            }
+        } catch (PDOException $e) {
+            $error = 'Erreur lors de la demande de suppression: ' . $e->getMessage();
+        }
     }
 }
 
@@ -75,6 +94,11 @@ try {
     $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
     $stmt->execute([$userId]);
     $user = $stmt->fetch();
+
+    // Check if user has a pending deletion request
+    $stmt = $pdo->prepare("SELECT * FROM deletion_requests WHERE user_id = ? AND status = 'pending'");
+    $stmt->execute([$userId]);
+    $deletionRequest = $stmt->fetch();
 } catch (PDOException $e) {
     $error = "Erreur: " . $e->getMessage();
 }
@@ -84,7 +108,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil - BudgetCoop</title>
+    <title>Profil - Budgini</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -93,7 +117,7 @@ try {
 <body>
     <header class="site-header">
         <nav class="nav-container">
-            <a href="index.php" class="logo">BudgetCoop</a>
+            <a href="index.php" class="logo">Budgini</a>
             <ul class="nav-links">
                 <li><a href="dashboard.php">Tableau de bord</a></li>
                 <li><a href="transactions.php">Transactions</a></li>
@@ -206,10 +230,39 @@ try {
                 </div>
             </div>
         </div>
+
+        <!-- Account Deletion -->
+        <div class="table-container" style="margin-top: 2rem;">
+            <div class="table-header">
+                <h2>Suppression du compte</h2>
+            </div>
+            <div style="padding: 1.5rem;">
+                <?php if ($deletionRequest): ?>
+                    <div class="alert alert-warning">
+                        <strong>Demande en cours:</strong> Votre demande de suppression du compte est en attente d'approbation par l'administrateur.
+                        <br><small>Demandée le: <?php echo formatDate($deletionRequest['requested_at']); ?></small>
+                    </div>
+                <?php else: ?>
+                    <p style="margin-bottom: 1rem; color: var(--text-secondary);">
+                        Vous pouvez demander la suppression de votre compte. Cette action est irréversible et nécessitera l'approbation d'un administrateur.
+                    </p>
+                    <form method="POST" action="" id="deletionForm">
+                        <input type="hidden" name="action" value="request_deletion">
+                        <div class="form-group">
+                            <label for="reason">Raison de la suppression (optionnel)</label>
+                            <textarea id="reason" name="reason" rows="3" placeholder="Expliquez pourquoi vous souhaitez supprimer votre compte..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir demander la suppression de votre compte? Cette action est irréversible.');">
+                            Demander la suppression du compte
+                        </button>
+                    </form>
+                <?php endif; ?>
+            </div>
+        </div>
     </main>
 
     <footer class="site-footer">
-        <p>&copy; 2026 BudgetCoop – Tous droits réservés.</p>
+        <p>&copy; 2026 Budgini – Tous droits réservés.</p>
     </footer>
 </body>
 </html>

@@ -7,7 +7,7 @@ require_once 'config.php';
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BudgetCoop - Gestion Collaborative de Budget Personnel</title>
+    <title>Budgini - Gestion Collaborative de Budget Personnel</title>
     <meta name="description" content="Application web de gestion collaborative de budget personnel pour familles, colocataires et équipes.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,7 +17,7 @@ require_once 'config.php';
 <body>
     <header class="site-header">
         <nav class="nav-container">
-            <a href="index.php" class="logo">BudgetCoop</a>
+            <a href="index.php" class="logo">Budgini</a>
             <ul class="nav-links">
                 <li><a href="#features">Fonctionnalités</a></li>
                 <li><a href="#stats">Statistiques</a></li>
@@ -142,7 +142,7 @@ require_once 'config.php';
         <div class="cta-container">
             <div class="cta-card">
                 <h2>Prêt à prendre le contrôle de vos finances ?</h2>
-                <p>Rejoignez des milliers d'utilisateurs qui gèrent déjà leur budget avec BudgetCoop. Commencez gratuitement dès aujourd'hui.</p>
+                <p>Rejoignez des milliers d'utilisateurs qui gèrent déjà leur budget avec Budgini. Commencez gratuitement dès aujourd'hui.</p>
                 <a href="register.php" class="btn-hero btn-hero-primary">Créer un compte gratuit →</a>
             </div>
         </div>
@@ -153,7 +153,7 @@ require_once 'config.php';
         <div class="footer-container">
             <div class="footer-grid">
                 <div class="footer-brand">
-                    <h3>BudgetCoop</h3>
+                    <h3>Budgini</h3>
                     <p>La solution collaborative pour gérer vos finances personnelles en toute simplicité. Rejoignez notre communauté et prenez le contrôle de votre budget.</p>
                 </div>
                 <div class="footer-links">
@@ -182,7 +182,7 @@ require_once 'config.php';
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2026 BudgetCoop – Tous droits réservés.</p>
+                <p>&copy; 2026 Budgini – Tous droits réservés.</p>
             </div>
         </div>
     </footer>

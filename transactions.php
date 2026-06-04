@@ -66,6 +66,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (PDOException $e) {
             $error = 'Erreur lors de la suppression: ' . $e->getMessage();
         }
+    } elseif ($action === 'edit') {
+        $transaction_id = intval($_POST['transaction_id'] ?? 0);
+        $type = $_POST['type'] ?? '';
+        $amount = floatval($_POST['amount'] ?? 0);
+        $description = sanitizeInput($_POST['description'] ?? '');
+        $category_id = intval($_POST['category_id'] ?? 0);
+        $budget_id = intval($_POST['budget_id'] ?? 0);
+        $transaction_date = $_POST['transaction_date'] ?? date('Y-m-d');
+
+        if (empty($type) || $amount <= 0 || empty($description)) {
+            $error = 'Veuillez remplir tous les champs obligatoires.';
+        } else {
+            try {
+                $stmt = $pdo->prepare("
+                    UPDATE transactions 
+                    SET type = ?, amount = ?, description = ?, category_id = ?, budget_id = ?, transaction_date = ?
+                    WHERE id = ? AND user_id = ?
+                ");
+                $stmt->execute([$type, $amount, $description, $category_id ?: null, $budget_id ?: null, $transaction_date, $transaction_id, $userId]);
+                $success = 'Transaction modifiée avec succès!';
+            } catch (PDOException $e) {
+                $error = 'Erreur lors de la modification: ' . $e->getMessage();
+            }
+        }
     }
 }
 
@@ -116,7 +140,7 @@ try {
 <body>
     <header class="site-header">
         <nav class="nav-container">
-            <a href="index.php" class="logo">BudgetCoop</a>
+            <a href="index.php" class="logo">Budgini</a>
             <ul class="nav-links">
                 <li><a href="dashboard.php">Tableau de bord</a></li>
                 <li><a href="transactions.php" class="active">Transactions</a></li>
@@ -241,11 +265,14 @@ try {
                                     <?php echo $transaction['type'] === 'income' ? '+' : '-'; ?><?php echo formatMoney($transaction['amount']); ?>
                                 </td>
                                 <td>
-                                    <form method="POST" action="" style="display: inline;">
-                                        <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="transaction_id" value="<?php echo $transaction['id']; ?>">
-                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette transaction?');">Supprimer</button>
-                                    </form>
+                                    <div style="display: flex; gap: 0.5rem;">
+                                        <button onclick="openEditModal(<?php echo $transaction['id']; ?>, '<?php echo $transaction['type']; ?>', <?php echo $transaction['amount']; ?>, '<?php echo htmlspecialchars($transaction['description'], ENT_QUOTES); ?>', <?php echo $transaction['category_id'] ?: 'null'; ?>, <?php echo $transaction['budget_id'] ?: 'null'; ?>, '<?php echo $transaction['transaction_date']; ?>')" class="btn btn-secondary btn-sm">Modifier</button>
+                                        <form method="POST" action="" style="display: inline;">
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="transaction_id" value="<?php echo $transaction['id']; ?>">
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette transaction?');">Supprimer</button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -256,7 +283,94 @@ try {
     </main>
 
     <footer class="site-footer">
-        <p>&copy; 2026 BudgetCoop – Tous droits réservés.</p>
+        <p>&copy; 2026 Budgini – Tous droits réservés.</p>
     </footer>
+
+    <!-- Edit Transaction Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Modifier la transaction</h2>
+                <button class="modal-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            <form method="POST" action="">
+                <input type="hidden" name="action" value="edit">
+                <input type="hidden" name="transaction_id" id="edit_transaction_id">
+                
+                <div class="form-group">
+                    <label for="edit_type">Type *</label>
+                    <select id="edit_type" name="type" required>
+                        <option value="income">Revenu</option>
+                        <option value="expense">Dépense</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit_amount">Montant (€) *</label>
+                    <input type="number" id="edit_amount" name="amount" step="0.01" min="0" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit_description">Description *</label>
+                    <input type="text" id="edit_description" name="description" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit_category_id">Catégorie</label>
+                    <select id="edit_category_id" name="category_id">
+                        <option value="">Aucune catégorie</option>
+                        <?php foreach ($categories as $category): ?>
+                            <option value="<?php echo $category['id']; ?>">
+                                <?php echo htmlspecialchars($category['name']); ?> <?php echo $category['icon']; ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit_budget_id">Budget</label>
+                    <select id="edit_budget_id" name="budget_id">
+                        <option value="">Aucun budget</option>
+                        <?php foreach ($budgets as $budget): ?>
+                            <option value="<?php echo $budget['id']; ?>">
+                                <?php echo htmlspecialchars($budget['name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit_transaction_date">Date</label>
+                    <input type="date" id="edit_transaction_date" name="transaction_date">
+                </div>
+
+                <button type="submit" class="form-button">Modifier la transaction</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openEditModal(id, type, amount, description, categoryId, budgetId, date) {
+            document.getElementById('edit_transaction_id').value = id;
+            document.getElementById('edit_type').value = type;
+            document.getElementById('edit_amount').value = amount;
+            document.getElementById('edit_description').value = description;
+            document.getElementById('edit_category_id').value = categoryId || '';
+            document.getElementById('edit_budget_id').value = budgetId || '';
+            document.getElementById('edit_transaction_date').value = date;
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEditModal();
+            }
+        });
+    </script>
 </body>
 </html>

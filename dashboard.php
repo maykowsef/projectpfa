@@ -75,7 +75,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tableau de bord - BudgetCoop</title>
+    <title>Tableau de bord - Budgini</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -85,7 +85,7 @@ try {
 <body>
     <header class="site-header">
         <nav class="nav-container">
-            <a href="index.php" class="logo">BudgetCoop</a>
+            <a href="index.php" class="logo">Budgini</a>
             <ul class="nav-links">
                 <li><a href="dashboard.php" class="active">Tableau de bord</a></li>
                 <li><a href="transactions.php">Transactions</a></li>
@@ -235,7 +235,7 @@ try {
     </main>
 
     <footer class="site-footer">
-        <p>&copy; 2026 BudgetCoop – Tous droits réservés.</p>
+        <p>&copy; 2026 Budgini – Tous droits réservés.</p>
     </footer>
 
     <script>

@@ -109,6 +109,19 @@ CREATE TABLE alerts (
     FOREIGN KEY (budget_id) REFERENCES budgets(id) ON DELETE CASCADE
 );
 
+-- Deletion requests table
+CREATE TABLE deletion_requests (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    reason TEXT,
+    status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+    requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    processed_at TIMESTAMP NULL,
+    processed_by INT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (processed_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
 -- Insert default categories
 INSERT INTO categories (name, description, icon, is_default) VALUES
 ('Alimentation', 'Dépenses alimentaires et courses', '🍔', TRUE),
