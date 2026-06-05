@@ -5,6 +5,12 @@ require_once 'includes/functions.php';
 
 requireLogin();
 
+// Redirect admin to admin panel
+if ($_SESSION['role'] === 'admin') {
+    header('Location: admin.php');
+    exit();
+}
+
 $userId = getCurrentUserId();
 $success = '';
 $error = '';
