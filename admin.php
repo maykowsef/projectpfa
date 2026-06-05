@@ -456,37 +456,6 @@ try {
         </div>
         <?php endif; ?>
 
-        <!-- System Information -->
-        <div class="table-container" style="margin-top: 2rem;">
-            <div class="table-header">
-                <h2>Informations système</h2>
-            </div>
-            <div style="padding: 1.5rem;">
-                <div class="stats-grid" style="margin-bottom: 0;">
-                    <div class="stat-card">
-                        <h3>Version PHP</h3>
-                        <div class="value" style="font-size: 1.25rem;"><?php echo phpversion(); ?></div>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Version MySQL</h3>
-                        <div class="value" style="font-size: 1.25rem;">
-                            <?php 
-                            try {
-                                $stmt = $pdo->query("SELECT VERSION() as version");
-                                echo $stmt->fetch()['version'];
-                            } catch (PDOException $e) {
-                                echo "N/A";
-                            }
-                            ?>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Base de données</h3>
-                        <div class="value" style="font-size: 1.25rem;">budget_app</div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </main>
 
     <footer class="site-footer">

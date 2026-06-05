@@ -119,10 +119,14 @@ try {
         <nav class="nav-container">
             <a href="index.php" class="logo">Budgini</a>
             <ul class="nav-links">
-                <li><a href="dashboard.php">Tableau de bord</a></li>
-                <li><a href="transactions.php">Transactions</a></li>
-                <li><a href="budgets.php">Budgets</a></li>
-                <li><a href="categories.php">Catégories</a></li>
+                <?php if ($user['role'] === 'admin'): ?>
+                    <li><a href="admin.php">Administration</a></li>
+                <?php else: ?>
+                    <li><a href="dashboard.php">Tableau de bord</a></li>
+                    <li><a href="transactions.php">Transactions</a></li>
+                    <li><a href="budgets.php">Budgets</a></li>
+                    <li><a href="categories.php">Catégories</a></li>
+                <?php endif; ?>
                 <li><a href="profile.php" class="active">Profil</a></li>
                 <li><a href="logout.php">Déconnexion</a></li>
             </ul>
