@@ -209,10 +209,6 @@ try {
         <nav class="nav-container">
             <a href="index.php" class="logo">Budgini</a>
             <ul class="nav-links">
-                <li><a href="dashboard.php">Tableau de bord</a></li>
-                <li><a href="transactions.php">Transactions</a></li>
-                <li><a href="budgets.php">Budgets</a></li>
-                <li><a href="categories.php">Catégories</a></li>
                 <li><a href="admin.php" class="active">Administration</a></li>
                 <li><a href="profile.php">Profil</a></li>
                 <li><a href="logout.php">Déconnexion</a></li>

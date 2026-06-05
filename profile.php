@@ -232,6 +232,7 @@ try {
         </div>
 
         <!-- Account Deletion -->
+        <?php if ($user['role'] !== 'admin'): ?>
         <div class="table-container" style="margin-top: 2rem;">
             <div class="table-header">
                 <h2>Suppression du compte</h2>
@@ -259,6 +260,7 @@ try {
                 <?php endif; ?>
             </div>
         </div>
+        <?php endif; ?>
     </main>
 
     <footer class="site-footer">
