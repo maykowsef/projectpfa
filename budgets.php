@@ -44,19 +44,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif ($action === 'add_member') {
         $budget_id = intval($_POST['budget_id'] ?? 0);
-        $member_username = sanitizeInput($_POST['member_username'] ?? '');
+        $member_email = sanitizeInput($_POST['member_email'] ?? '');
 
-        if (empty($member_username)) {
-            $error = 'Le nom d\'utilisateur est obligatoire.';
+        if (empty($member_email)) {
+            $error = 'L\'email est obligatoire.';
+        } elseif (!filter_var($member_email, FILTER_VALIDATE_EMAIL)) {
+            $error = 'Format d\'email invalide.';
         } else {
             try {
-                // Find user by username
-                $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ?");
-                $stmt->execute([$member_username]);
+                // Find user by email
+                $stmt = $pdo->prepare("SELECT id, username FROM users WHERE email = ?");
+                $stmt->execute([$member_email]);
                 $user = $stmt->fetch();
 
                 if (!$user) {
-                    $error = 'Utilisateur non trouvé.';
+                    $error = 'Aucun utilisateur trouvé avec cet email.';
                 } else {
                     // Check if already a member
                     $stmt = $pdo->prepare("SELECT id FROM budget_members WHERE budget_id = ? AND user_id = ?");
@@ -65,8 +67,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if ($stmt->rowCount() > 0) {
                         $error = 'Cet utilisateur est déjà membre de ce budget.';
                     } else {
+                        // Get budget name for alert
+                        $stmt = $pdo->prepare("SELECT name FROM budgets WHERE id = ?");
+                        $stmt->execute([$budget_id]);
+                        $budget = $stmt->fetch();
+
                         $stmt = $pdo->prepare("INSERT INTO budget_members (budget_id, user_id, role) VALUES (?, ?, 'member')");
                         $stmt->execute([$budget_id, $user['id']]);
+                        
+                        // Create alert for the added user
+                        createAlert($pdo, $user['id'], $budget_id, 'info', "Vous avez été ajouté au budget \"{$budget['name']}\" par un autre membre.");
+                        
                         $success = 'Membre ajouté avec succès!';
                     }
                 }
@@ -282,7 +293,7 @@ try {
                                     <input type="hidden" name="action" value="add_member">
                                     <input type="hidden" name="budget_id" value="<?php echo $budget['id']; ?>">
                                     <div style="flex: 1;">
-                                        <input type="text" name="member_username" placeholder="Nom d'utilisateur du nouveau membre" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 0.5rem;">
+                                        <input type="email" name="member_email" placeholder="Email du nouveau membre" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 0.5rem;">
                                     </div>
                                     <button type="submit" class="btn btn-primary">Ajouter</button>
                                 </form>

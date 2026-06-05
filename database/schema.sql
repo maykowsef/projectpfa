@@ -137,4 +137,4 @@ INSERT INTO categories (name, description, icon, is_default) VALUES
 
 -- Insert default admin user (password: admin123 - should be changed in production)
 INSERT INTO users (username, email, password, first_name, last_name, role, is_active) VALUES
-('admin', 'admin@budgetcoop.com', 'admin123', 'Admin', 'System', 'admin', TRUE);
+('admin', 'admin@budgini.com', 'admin123', 'Admin', 'System', 'admin', TRUE);

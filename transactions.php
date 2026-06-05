@@ -32,6 +32,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute([$userId, $type, $amount, $description, $category_id ?: null, $budget_id ?: null, $transaction_date]);
                 $success = 'Transaction ajoutée avec succès!';
 
+                // Check if budget is shared and create alerts for all members
+                if ($budget_id > 0) {
+                    $stmt = $pdo->prepare("SELECT type, name FROM budgets WHERE id = ?");
+                    $stmt->execute([$budget_id]);
+                    $budget = $stmt->fetch();
+
+                    if ($budget && $budget['type'] === 'shared') {
+                        // Get all budget members
+                        $stmt = $pdo->prepare("SELECT user_id FROM budget_members WHERE budget_id = ? AND user_id != ?");
+                        $stmt->execute([$budget_id, $userId]);
+                        $members = $stmt->fetchAll();
+
+                        // Create alert for each member
+                        foreach ($members as $member) {
+                            $typeText = $type === 'income' ? 'revenu' : 'dépense';
+                            $message = "Nouvelle {$typeText} de " . formatMoney($amount) . " dans le budget \"{$budget['name']}\": {$description}";
+                            createAlert($pdo, $member['user_id'], $budget_id, 'info', $message);
+                        }
+                    }
+                }
+
                 // Check budget limits and create alerts if needed
                 if ($budget_id > 0 && $type === 'expense') {
                     $stmt = $pdo->prepare("

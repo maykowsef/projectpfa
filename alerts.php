@@ -115,13 +115,22 @@ try {
                                         <span class="badge badge-success">Nouveau</span>
                                     <?php endif; ?>
                                 </div>
-                                <p style="margin-bottom: 0.5rem; font-weight: 500;"><?php echo htmlspecialchars($alert['message']); ?></p>
+                                <p style="margin-bottom: 0.5rem; font-weight: 500; font-size: 1.05rem;"><?php echo htmlspecialchars($alert['message']); ?></p>
                                 <?php if ($alert['budget_name']): ?>
-                                    <small style="color: var(--text-secondary);">Budget: <?php echo htmlspecialchars($alert['budget_name']); ?></small>
+                                    <div style="margin-top: 0.75rem; padding: 0.75rem; background: var(--bg-secondary); border-radius: var(--radius-md); border-left: 3px solid var(--primary);">
+                                        <small style="color: var(--text-secondary); font-weight: 600;">Budget associé:</small>
+                                        <div style="margin-top: 0.25rem;">
+                                            <a href="budgets.php" style="color: var(--primary); text-decoration: none; font-weight: 500;">
+                                                <?php echo htmlspecialchars($alert['budget_name']); ?> →
+                                            </a>
+                                        </div>
+                                    </div>
                                 <?php endif; ?>
                             </div>
                             <div style="text-align: right;">
-                                <small style="color: var(--text-secondary);"><?php echo date('d/m/Y H:i', strtotime($alert['created_at'])); ?></small>
+                                <small style="color: var(--text-muted);"><?php echo date('d/m/Y', strtotime($alert['created_at'])); ?></small>
+                                <br>
+                                <small style="color: var(--text-muted);"><?php echo date('H:i', strtotime($alert['created_at'])); ?></small>
                             </div>
                         </div>
                     </div>
